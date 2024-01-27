@@ -1,0 +1,129 @@
+---
+title: "Random Sampling and Sampling Distributions"
+author: "2304-BADGUJAR PARAG KISHOR"
+date: "`r Sys.Date()`"
+output:
+  word_document: default
+  html_document: default
+---
+
+# Random Sampling and Sampling distributions
+
+## Problem 1- Generate random sample from the finite population using (i) SRSWR (ii) SRSWOR (iii) Unequal probabilities for population elements.
+###
+```{r}
+U=1:5
+Pu=c(0.1,0.4,0.1,0.2,0.2)
+n=4
+#sample(x, size, replace = FALSE, prob = NULL)
+x1=sample(U,n,replace=T)
+x2=sample(U,n,replace=F)
+x3=sample(U,n,replace=T,prob=Pu)
+cat("Original Population:",U)
+cat("\n Random Sample by using SRSWR",x1)
+cat("\n Random Sample by using SRSWOR",x2)
+cat("\n Random Sample by using unequal probabilities",x3)
+```
+
+## Problem2 - Generate random sample of size 10, 000 from  $Poisson(\lambda = 3)$. Treat this generated sample data as  characteristic values of study variables of the population of the size 10, 000. Now, draw 5 random samples of size 100 each from this population using SRSWOR, obtain estimate of population mean based on each sample data by using sample mean as an estimator for population mean. Also find the amount of sampling error from your estimates.
+###
+```{r}
+N=10000
+lambda=3
+fam=1:N
+fam_size=rpois(N,lambda)
+s=matrix(rep(0,500),nrow=5,ncol=100)
+for(i in 1:5){
+  s[i,]=fam_size[sample(fam,100,replace=F)]
+}
+
+pop_mean=mean(fam_size)
+sam_mean=rowMeans(s)
+cat("\n Population mean",pop_mean)
+cat("\n sample mean",sam_mean)
+sm=c("s1","s2","s3","s4","s5")
+data.frame(sm,sam_mean)
+```
+
+
+
+
+
+
+## Problem3- Draw 10, 000 samples of size 25 from Normal $(100, 3^2)$ and study the sampling distribution of following statistics for $n$ = 5, 10, 25.
+
+
+- $\overline{Y}$
+- $\displaystyle S^2_Y = \frac{1}{n-1}\sum_{r = 1}^{n}{Y_r-\overline{Y}}^2$
+- $Y_{(1)} = \min(Y_1, Y_2, \cdots, Y_n)$\\
+- $Y_{(n)} = \max(Y_1, Y_2, \cdots, Y_n)$
+- $R = Y_{(n)}-Y_{(1)}$
+
+```{r}
+Y=matrix(rnorm(10000*25,100,3),nrow=10000,ncol=25)
+M1=matrix(rep(0,5*6),nrow=5)
+colnames(M1)=c("Mean_n5","Mean_n10","Mean_n25","MSE_n5","MSE_n10","MSE_n25")
+row.names(M1)=c( "T1","T2","T3","T4","T5")
+
+n1=c(5,10,25)
+
+for(i in 1:3)
+{ #First Estimator
+  T1=rowMeans(Y[,1:n1[i]])
+  M1[1,i]=mean(T1)
+  M1[1,i+3]=mean((T1-100)^2)
+  #Second Estimator
+  T2=apply(Y[,1:n1[i]],1,var)
+  M1[2,i]=mean(T2)
+  M1[2,i+3]=mean((T2-9)^2)
+  #Third Estimator
+  T3=apply(Y[,1:n1[i]],1,min)
+  M1[3,i]=mean(T3)
+  M1[3,i+3]=mean((T3-100)^2)
+  #Fourth Parameter
+  T4=apply(Y[,1:n1[i]],1,max)
+  M1[4,i]=mean(T4)
+  M1[4,i+3]=mean((T4-100)^2)
+  #Fifth Parameter
+  T5=T4-T3
+  M1[5,i]=mean(T5)
+  M1[5,i+3]=mean((T5-100)^2)
+ 
+}
+M1
+
+```
+
+## Problem 4 Consider the population of size $N = 5$ with $y$ values as (138, 142, 145, 155, 143). Write down all possible samples of size $n$ = 3 using SRSWOR for each sample obtain values of
+- $T_1 = \overline{Y}$
+- $T_2 = \frac{Y_1+Y_3}{2}$
+- $T_3 = Sample\ Median$
+
+Now verify 
+- $E(T_1) = \overline{y}$i.e. $T_1$ is unbiased estimator of $\overline{y}$(population mean).
+- $E(T_2)\neq\overline{y}$ i.e. $T_2$ is biased estimator of $\overline{y}$
+- $E(T_3)\neq\overline{y}$ i.e. $T_3$ is biased estimator of $\overline{y}$
+
+Compare $T_1, T_2$ and $T_3$ in terms of their M.S.E.
+
+
+```{r}
+
+Y=c(138,142,145,155,143)
+#All possible samples
+Mat=t(combn(Y,3))
+T1=rowMeans(Mat)
+T2=(Mat[,1]+Mat[,3])/2
+T3=apply(Mat,1,median)
+popmn=mean(Y)
+estimates=c(mean(T1),mean(T2),mean(T3))
+mses=c(mean(T1-popmn)^2,mean((T2-popmn)^2),mean((T3-popmn)^2))
+M5=data.frame(estimates,mses)
+M5
+```
+```{r}
+u=c(1,2,3,4)
+range(u) 
+
+```
+
